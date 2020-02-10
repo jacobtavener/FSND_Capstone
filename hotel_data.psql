@@ -1,4 +1,19 @@
 INSERT INTO guests(id, name, mobile, email, reason_for_stay)
 VALUES 
-  (1, 'jacob','07754354292', 'jacob@email.com', 'business')
-;
+  (1, 'jacob','07754354292', 'jacob@email.com', 'business'),
+  (2, 'rose', '0592949392', 'rose@email.com', 'pleasure');
+
+INSERT INTO room_types(id, name, price, view, description)
+VALUES
+    (1, 'single', 60, 'sea', 'one bed suitable for single guest'),
+    (2, 'double', 100, 'street', 'suitable for couples or pairs');
+
+INSERT INTO rooms(id, type_id, dates_booked)
+VALUES 
+    (1, 2, '{"2020-01-12"}'),
+    (2, 1, '{"2020-03-13"}');
+
+INSERT INTO bookings(id, room_id, guest_id, date_in, date_out, breakfast, paid)
+VALUES
+  (1, 1, 1, '2020-02-12', '2020-02-16', True, True);
+
