@@ -1,6 +1,6 @@
 import os
 from sqlalchemy import Column, String, Integer, create_engine,\
-                        ForeignKey, PickleType, Date, Boolean
+                        ForeignKey, ARRAY, Date, Boolean
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import json
@@ -33,7 +33,7 @@ class Guest(db.Model):
     mobile = Column(String)
     email = Column(String)
     reason_for_stay = Column(String)
-    bookings = relationship('bookings', backref='guest', lazy=True)
+    bookings = relationship('Booking', backref='guest', lazy=True)
 
     def __init__(self, name, mobile, email, reason_for_stay):
         self.name =  name 
@@ -72,7 +72,7 @@ class RoomType(db.Model):
     price = Column(Integer)
     view = Column(String)
     description = Column(String)
-    rooms = relationship('rooms', backref='roomtype', lazy=True)
+    rooms = relationship('Room', backref='roomtype', lazy=True)
 
 
     def __init__(self, name, price, view, description):
@@ -110,8 +110,8 @@ class Room(db.Model):
 
     id = Column(Integer, primary_key=True)
     type_id = Column(Integer, ForeignKey('room_types.id'), nullable=False)
-    dates_available = Column(PickleType)
-    bookings = relationship('bookings', backref='room', lazy=True)
+    dates_booked = Column(ARRAY(Date))
+    bookings = relationship('Booking', backref='room', lazy=True)
 
 
     def __init__(self, type_id, dates_available):
