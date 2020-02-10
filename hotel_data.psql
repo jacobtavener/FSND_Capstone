@@ -1,0 +1,4 @@
+INSERT INTO guests(id, name, mobile, email, reason_for_stay)
+VALUES 
+  (1, 'jacob','07754354292', 'jacob@email.com', 'business')
+;
