@@ -41,13 +41,18 @@ class Guest(db.Model):
         self.email = email
         self.reason_for_stay = reason_for_stay
 
-    def format(self):
+    def long(self):
         return {
             'id': self.id,
             'name': self.name,
             'mobile': self.mobile,
             'email': self.email,
             'reason_for_stay': self.reason_for_stay
+        }
+    def short(self):
+        return{
+            'id': self.id,
+            'name': self.name
         }
 
     def insert(self):
@@ -81,13 +86,19 @@ class RoomType(db.Model):
         self.view = view
         self.description = description
 
-    def format(self):
+    def long(self):
         return {
         'id': self.id,
         'name': self.name,
         'price': self.price,
         'view': self.view,
         'description': self.description
+        }
+
+    def short(self):
+        return {
+            'name': self.name,
+            'price': self.price
         }
     
     def insert(self):
@@ -114,14 +125,14 @@ class Room(db.Model):
     bookings = relationship('Booking', backref='room', lazy=True)
 
 
-    def __init__(self, type_id, dates_available):
+    def __init__(self, type_id, dates_booked):
         self.type_id = type_id
-        self.dates_available = dates_available
+        self.dates_booked = dates_booked
 
-    def format(self):
+    def long(self):
         return {
         'id': self.id,
-        'name': self.name,
+        'dates_booked': self.dates_booked,
         'type_id': self.type_id
         }
 
@@ -159,7 +170,7 @@ class Booking(db.Model):
         self.paid = paid
 
 
-    def format(self):
+    def long(self):
         return {
             'id': self.id,
             'room_id': self.room_id,
