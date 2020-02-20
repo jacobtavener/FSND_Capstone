@@ -17,9 +17,7 @@ def create_app(test_config=None):
       response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS')
       return response
 
-"""
-GET ENDPOINTS
-"""
+##GET ENDPOINTS
 
   @app.route('/bookings')
   def get_bookings():
@@ -95,9 +93,15 @@ GET ENDPOINTS
 
       return jsonify(room)
 
+##POST ENDPOINTS
 
+  # @app.route('/bookings', METHODS=["POST"])
+  # def create_booking():
+    
+  #   data = request.get_json()
+  #   expected_parameters = ["room_id"]
 
-
+    
 
 
 

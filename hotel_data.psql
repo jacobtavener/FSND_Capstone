@@ -16,10 +16,9 @@ VALUES
     (1, 2),
     (2, 1);
 
-INSERT INTO bookings(id, room_id, guest_id, date_in, date_out, breakfast, paid, reason_for_stay)
+INSERT INTO bookings(room_id, guest_id, date_in, date_out, breakfast, paid, reason_for_stay)
 VALUES
-  (1, 1, 1, '2020-02-12', '2020-02-16', True, True, 'business'),
-  (2, 2, 3, '2020-04-29', '2020-05-18', False, True, 'pleasure'),
-  (3, 1, 2, '2020-03-23', '2020-03-24', False, True, 'business'),
-  (4, 2 ,4, '2020-02-21', '2020-02-26', False, True, 'pleasure');
-
+  (1, 1, '2020-02-12', '2020-02-16', True, True, 'business'),
+  (2, 3, '2020-04-29', '2020-05-18', False, True, 'pleasure'),
+  (1, 2, '2020-03-23', '2020-03-24', False, True, 'business'),
+  (2 ,4, '2020-02-21', '2020-02-26', False, True, 'pleasure');
