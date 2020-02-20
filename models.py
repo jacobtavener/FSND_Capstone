@@ -32,26 +32,22 @@ class Guest(db.Model):
     name = Column(String)
     mobile = Column(String)
     email = Column(String)
-    reason_for_stay = Column(String)
     bookings = relationship('Booking', backref='guest', lazy=True)
 
     def __init__(self, name, mobile, email, reason_for_stay):
         self.name =  name 
         self.mobile = mobile
         self.email = email
-        self.reason_for_stay = reason_for_stay
 
     def long(self):
         return {
             'id': self.id,
             'name': self.name,
             'mobile': self.mobile,
-            'email': self.email,
-            'reason_for_stay': self.reason_for_stay
+            'email': self.email
         }
-    def short(self):
+    def booking(self):
         return{
-            'id': self.id,
             'name': self.name
         }
 
@@ -95,11 +91,20 @@ class RoomType(db.Model):
         'description': self.description
         }
 
-    def short(self):
+    def booking(self):
         return {
             'name': self.name,
             'price': self.price
         }
+    
+    def long_no_id(self):
+        return {
+        'name': self.name,
+        'price': self.price,
+        'view': self.view,
+        'description': self.description
+        }
+
     
     def insert(self):
         db.session.add(self)
@@ -121,7 +126,6 @@ class Room(db.Model):
 
     id = Column(Integer, primary_key=True)
     type_id = Column(Integer, ForeignKey('room_types.id'), nullable=False)
-    dates_booked = Column(ARRAY(Date))
     bookings = relationship('Booking', backref='room', lazy=True)
 
 
@@ -132,8 +136,12 @@ class Room(db.Model):
     def long(self):
         return {
         'id': self.id,
-        'dates_booked': self.dates_booked,
         'type_id': self.type_id
+        }
+    
+    def booking(self):
+        return {
+        'room_number': self.id,
         }
 
     def insert(self):
@@ -160,14 +168,16 @@ class Booking(db.Model):
     date_out = Column(Date)
     breakfast = Column(Boolean)
     paid = Column(Boolean)
+    reason_for_stay = Column(String)
 
-    def __init__(self, room_id, guest_id, date_in, date_out, breakfast, paid):
+    def __init__(self, room_id, guest_id, date_in, date_out, breakfast, paid, reason_for_stay):
         self.room_id = room_id
         self.guest_id = guest_id
         self.date_in = date_in
         self.date_out = date_out
         self.breakfast = breakfast
         self.paid = paid
+        self.reason_for_stay = reason_for_stay
 
 
     def long(self):
@@ -178,7 +188,25 @@ class Booking(db.Model):
             'date_in': self.date_in,
             'date_out': self.date_out,
             'breakfast': self.breakfast,
-            'paid': self.paid
+            'paid': self.paid,
+            'reason for stay': self.reason_for_stay
+        }
+    
+    def booking(self):
+        return {
+            'booking_id': self.id,
+            'date_in': self.date_in,
+            'date_out': self.date_out,
+            'breakfast': self.breakfast,
+            'paid': self.paid,
+            'reason for stay': self.reason_for_stay
+        }
+    
+    def guest_view(self):
+        return {
+            'booking_id': self.id,
+            'date_in': self.date_in,
+            'date_out': self.date_out
         }
 
     def insert(self):
