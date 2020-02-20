@@ -95,30 +95,139 @@ def create_app(test_config=None):
 
 ##POST ENDPOINTS
 
-  # @app.route('/bookings', METHODS=["POST"])
-  # def create_booking():
+  @app.route('/bookings', methods=["POST"])
+  def create_booking():
     
-  #   data = request.get_json()
-  #   expected_parameters = ["room_id"]
+    data = request.get_json()
+    if set(data.keys()) != set(Booking.params()):
+      return jsonify(
+        {}
+      )
 
+    else: 
+      params ={
+      'room_id' : data.get('room_id'),
+      'guest_id' : data.get('guest_id'),
+      'date_in' : data.get('date_in'),
+      'date_out' : data.get('date_out'),
+      'breakfast' : data.get('breakfast'),
+      'paid' : data.get('paid'),
+      'reason_for_stay' : data.get('reason_for_stay')
+      }
+
+      new_booking = Booking(**params)
+      Booking.insert(new_booking)
+
+      booking = new_booking.long()
+
+      return jsonify(booking)
+
+  @app.route('/guests', methods=["POST"])
+  def add_new_guest():
+
+    data = request.get_json()
+
+    if set(data.keys()) != set(Guest.params()):
+      return jsonify({})
+
+    else:
+      params = {
+        "name" : data.get('name'),
+        "mobile" : data.get('mobile'),
+        "email" : data.get('email')
+      }
+
+      new_guest = Guest(**params)
+      Guest.insert(new_guest)
+
+      guest = new_guest.long()
+
+      return jsonify(guest)
+
+##PATCH ENDPOINTS
+
+  @app.route('/bookings/<int:booking_id>', methods=["PATCH"])
+  def edit_bookings(booking_id):
+
+    data = request.get_json()
+    booking = Booking.query.filter_by(id = booking_id).one_or_none()
+
+    if booking is None:
+      return jsonify({})
+
+    else:
+      if "room_id" in data:
+        booking.room_id = data.get("room_id")
+
+      if "guest_id" in data:
+        booking.guest_id = data.get("guest_id")
+
+      if "date_in" in data:
+        booking.date_in = data.get("date_in")
+
+      if "date_out" in data:
+        booking.date_out = data.get("date_out")
+
+      if "breakfast" in data: 
+        booking.breakfast = data.get("breakfast")
+
+      if "paid" in data:
+        booking.paid = data.get("paid")
+
+      if "reason_for_stay" in data:
+        booking.reason_for_stay = data.get("reason_for_stay")
+
+      Booking.update(booking)
+
+      return jsonify(booking.long())
+
+  @app.route('/guests/<int:guest_id>', methods=["PATCH"])
+  def edit_guest(guest_id):
     
+    data = request.get_json()
+    guest = Guest.query.filter_by(id = guest_id).one_or_none()
+
+    if guest is None:
+      return jsonify({})
+
+    else:
+      if "name" in data:
+        guest.name = data.get("name")
+
+      if "mobile" in data:
+        guest.mobile = data.get("mobile")
+
+      if "email" in data:
+        guest.email = data.get("email")
 
 
+      Guest.update(guest)
 
-  @app.route('/testing')
-  def tests():
+      return jsonify(guest.long())
+    
+##DELETE ENDPOINTS
 
-    bookings = [b.guest_view() for b in Booking.query.all()]
-  
-    room = Room.query.first()
-    dates_booked=booked_dates(room)
+  @app.route('/bookings/<int:booking_id>', methods=["DELETE"])
+  def remove_booking(booking_id):
+    booking = Booking.query.filter_by(id = booking_id).one_or_none()
+    if booking is None:
+      return jsonify({})
+    Booking.delete(booking)
+    return jsonify({"booking_id": booking_id})
 
-
+  @app.route('/guests/<int:guest_id>', methods=["DELETE"])
+  def remove_guests(guest_id):
+    guest = Guest.query.filter_by(id = guest_id).one_or_none()
+    if guest is None:
+      return jsonify({})
+    name = guest.name
+    Guest.delete(guest)
+    return jsonify({"removed":name})
+    
 
     return jsonify({
-      "bookings":dates_booked
+      "test":str(type(test))
     })
-
 
   return app
 

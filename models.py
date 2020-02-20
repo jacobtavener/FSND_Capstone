@@ -24,7 +24,6 @@ def setup_db(app, database_path=database_path):
 
     migrate = Migrate(app, db)
 
-
 class Guest(db.Model):  
     __tablename__ = 'guests'
 
@@ -34,7 +33,7 @@ class Guest(db.Model):
     email = Column(String)
     bookings = relationship('Booking', backref='guest', lazy=True)
 
-    def __init__(self, name, mobile, email, reason_for_stay):
+    def __init__(self, name, mobile, email):
         self.name =  name 
         self.mobile = mobile
         self.email = email
@@ -63,7 +62,12 @@ class Guest(db.Model):
         db.session.commit()
 
     def __repr__(self):
-        return json.dumps(self.format())    
+        return json.dumps(self.long())
+
+    @classmethod
+    def params(cls):
+        parameters = ['name', 'mobile', 'email']
+        return parameters    
 
 class RoomType(db.Model):
     __tablename__ = 'room_types'
@@ -118,8 +122,7 @@ class RoomType(db.Model):
         db.session.commit()
 
     def __repr__(self):
-        return json.dumps(self.format())
-
+        return json.dumps(self.long())
 
 class Room(db.Model):
     __tablename__ = 'rooms'
@@ -156,7 +159,7 @@ class Room(db.Model):
         db.session.commit()
 
     def __repr__(self):
-        return json.dumps(self.format()) 
+        return json.dumps(self.long()) 
 
 class Booking(db.Model):
     __tablename__ = 'bookings'
@@ -221,4 +224,10 @@ class Booking(db.Model):
         db.session.commit()
 
     def __repr__(self):
-        return json.dumps(self.format())
+        return json.dumps(self.long())
+
+    @classmethod
+    def params(cls):
+        parameters = ['room_id', 'guest_id', 'date_in', \
+                         'date_out', 'breakfast', 'paid', 'reason_for_stay'] 
+        return parameters

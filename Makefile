@@ -1,6 +1,6 @@
 set_up:
 	docker-compose up -d
-	sleep 1
+	sleep 2
 	python3 app.py
 
 dump: 
