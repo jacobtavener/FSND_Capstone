@@ -1,6 +1,7 @@
 import os
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy import Column, String, Integer, create_engine,\
-                        ForeignKey, ARRAY, Date, Boolean
+                        ForeignKey, ARRAY, Date, Boolean, types
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import json
@@ -28,12 +29,14 @@ class Guest(db.Model):
     __tablename__ = 'guests'
 
     id = Column(Integer, primary_key=True)
+    uuid = Column(UUID(as_uuid=True), unique=True, nullable=False)
     name = Column(String)
     mobile = Column(String)
     email = Column(String)
     bookings = relationship('Booking', backref='guest', lazy=True)
 
-    def __init__(self, name, mobile, email):
+    def __init__(self, uuid, name, mobile, email):
+        self.uuid = uuid
         self.name =  name 
         self.mobile = mobile
         self.email = email
@@ -41,6 +44,7 @@ class Guest(db.Model):
     def long(self):
         return {
             'id': self.id,
+            'uuid': self.uuid,
             'name': self.name,
             'mobile': self.mobile,
             'email': self.email
@@ -165,17 +169,19 @@ class Booking(db.Model):
     __tablename__ = 'bookings'
 
     id = Column(Integer, primary_key=True)
+    uuid = Column(UUID(as_uuid=True), unique=True, nullable=False)
     room_id = Column(Integer, ForeignKey('rooms.id'), nullable=False)
-    guest_id = Column(Integer, ForeignKey('guests.id'), nullable=False)
+    guest_uuid = Column(UUID(as_uuid=True), ForeignKey('guests.uuid'), nullable=False)
     date_in = Column(Date)
     date_out = Column(Date)
     breakfast = Column(Boolean)
     paid = Column(Boolean)
     reason_for_stay = Column(String)
 
-    def __init__(self, room_id, guest_id, date_in, date_out, breakfast, paid, reason_for_stay):
+    def __init__(self, uuid, room_id, guest_uuid, date_in, date_out, breakfast, paid, reason_for_stay):
+        self.uuid = uuid
         self.room_id = room_id
-        self.guest_id = guest_id
+        self.guest_uuid = guest_uuid
         self.date_in = date_in
         self.date_out = date_out
         self.breakfast = breakfast
@@ -186,8 +192,9 @@ class Booking(db.Model):
     def long(self):
         return {
             'id': self.id,
+            'uuid': self.uuid,
             'room_id': self.room_id,
-            'guest_id': self.guest_id,
+            'guest_uuid': self.guest_uuid,
             'date_in': self.date_in,
             'date_out': self.date_out,
             'breakfast': self.breakfast,
@@ -197,7 +204,7 @@ class Booking(db.Model):
     
     def booking(self):
         return {
-            'booking_id': self.id,
+            'booking_id': self.uuid,
             'date_in': self.date_in,
             'date_out': self.date_out,
             'breakfast': self.breakfast,
@@ -207,7 +214,7 @@ class Booking(db.Model):
     
     def guest_view(self):
         return {
-            'booking_id': self.id,
+            'booking_id': self.uuid,
             'date_in': self.date_in,
             'date_out': self.date_out
         }
@@ -228,6 +235,6 @@ class Booking(db.Model):
 
     @classmethod
     def params(cls):
-        parameters = ['room_id', 'guest_id', 'date_in', \
+        parameters = ['room_id', 'guest_uuid', 'date_in', \
                          'date_out', 'breakfast', 'paid', 'reason_for_stay'] 
         return parameters

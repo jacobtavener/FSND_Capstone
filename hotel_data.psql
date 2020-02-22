@@ -1,10 +1,10 @@
-INSERT INTO guests(name, mobile, email)
+INSERT INTO guests(uuid, name, mobile, email)
 VALUES 
-  ('jacob','07754354292', 'jacob@email.com'),
-  ('rose', '0592949392', 'rose@email.com'),
-  ('oscar', '0686739275', 'oscar@email.com'),
-  ('herbie', '80085', 'herbie@email.com'),
-  ('Ilya', '078888881', 'email@ilya.com');
+  ('8ede78bc-5567-11ea-84a8-acde48001122','jacob','07754354292', 'jacob@email.com'),
+  ('8f52bfc4-5567-11ea-84a8-acde48001122' ,'rose', '0592949392', 'rose@email.com'),
+  ('90376688-5567-11ea-84a8-acde48001122' ,'oscar', '0686739275', 'oscar@email.com'),
+  ('91242f0e-5567-11ea-84a8-acde48001122' ,'herbie', '80085', 'herbie@email.com'),
+  ('c5ef43fe-5567-11ea-84a8-acde48001122' ,'Ilya', '078888881', 'email@ilya.com');
 
 INSERT INTO room_types(name, price, view, description)
 VALUES
@@ -16,9 +16,9 @@ VALUES
     (2),
     (1);
 
-INSERT INTO bookings(room_id, guest_id, date_in, date_out, breakfast, paid, reason_for_stay)
+INSERT INTO bookings(uuid, room_id, guest_uuid, date_in, date_out, breakfast, paid, reason_for_stay)
 VALUES
-  (1, 1, '2020-02-12', '2020-02-16', True, True, 'business'),
-  (2, 3, '2020-04-29', '2020-05-18', False, True, 'pleasure'),
-  (1, 2, '2020-03-23', '2020-03-24', False, True, 'business'),
-  (2 ,4, '2020-02-21', '2020-02-26', False, True, 'pleasure');
+  ('07edecf2-5567-11ea-84a8-acde48001122', 1, '8ede78bc-5567-11ea-84a8-acde48001122', '2020-02-12', '2020-02-16', True, True, 'business'),
+  ('2f3030a4-5567-11ea-84a8-acde48001122', 2, '90376688-5567-11ea-84a8-acde48001122', '2020-04-29', '2020-05-18', False, True, 'pleasure'),
+  ('2fa63b8c-5567-11ea-84a8-acde48001122', 1, '8f52bfc4-5567-11ea-84a8-acde48001122', '2020-03-23', '2020-03-24', False, True, 'business'),
+  ('3016e3b4-5567-11ea-84a8-acde48001122', 2, '91242f0e-5567-11ea-84a8-acde48001122', '2020-02-21', '2020-02-26', False, True, 'pleasure');

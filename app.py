@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from models import *
 from dates import booked_dates
+import uuid
 
 def create_app(test_config=None):
   # create and configure the app
@@ -23,7 +24,7 @@ def create_app(test_config=None):
   def get_bookings():
 
     bookings = Booking.query.all()
-    booking = {"booking_id_"+str(b.id):\
+    booking = {str(b.uuid):\
                           {**b.booking(), **b.guest.booking(), **b.room.booking(), **b.room.roomtype.booking()}
                           for b in bookings}
 
@@ -40,12 +41,12 @@ def create_app(test_config=None):
   @app.route('/guests')
   def get_guests():
 
-    booked_guests = [b.guest_id for b in Booking.query.all()]
+    booked_guests = [str(b.guest_uuid) for b in Booking.query.all()]
     guest_bookings = {id : {b.id : {**b.guest_view(), **b.room.booking()} for\
-                       b in Booking.query.filter_by(guest_id = id).all()} \
+                       b in Booking.query.filter_by(guest_uuid = id).all()} \
                          for id in booked_guests}
 
-    guests = {g.id : g.long() for g in Guest.query.all()}
+    guests = {str(g.uuid) : g.long() for g in Guest.query.all()}
 
     for id in guests.keys():
       if id in booked_guests:
@@ -54,22 +55,22 @@ def create_app(test_config=None):
         guests[id]["zbookings"] = {}
     return jsonify(guests)
 
-  @app.route('/guests/<int:guest_id>')
-  def get_guests_by_id(guest_id):
-    guest = Guest.query.filter_by(id = guest_id).one_or_none()
+  @app.route('/guests/<string:guest_uuid>')
+  def get_guests_by_uuid(guest_uuid):
+    guest = Guest.query.filter_by(uuid = guest_uuid).one_or_none()
     if guest is None:
       return jsonify({
-        "error":"guest id not found"
+        "error":"guest uuid not found"
       })
 
     else:
       guest = guest.long()
-      bookings = Booking.query.filter_by(id= guest_id).all()
+      bookings = Booking.query.filter_by(guest_uuid= guest_uuid).all()
       
       if len(bookings) == 0:
         guest['bookings'] = {}
       else:
-        guest['bookings'] = {b.id : {**b.guest_view(), **b.room.booking()} for b in bookings}
+        guest['bookings'] = {str(b.uuid) : {**b.guest_view(), **b.room.booking()} for b in bookings}
       
       return jsonify(guest)
 
@@ -106,8 +107,9 @@ def create_app(test_config=None):
 
     else: 
       params ={
+      'uuid' : uuid.uuid4(),
       'room_id' : data.get('room_id'),
-      'guest_id' : data.get('guest_id'),
+      'guest_uuid' : data.get('guest_uuid'),
       'date_in' : data.get('date_in'),
       'date_out' : data.get('date_out'),
       'breakfast' : data.get('breakfast'),
@@ -132,6 +134,7 @@ def create_app(test_config=None):
 
     else:
       params = {
+        "uuid" : uuid.uuid1(),
         "name" : data.get('name'),
         "mobile" : data.get('mobile'),
         "email" : data.get('email')
@@ -146,11 +149,11 @@ def create_app(test_config=None):
 
 ##PATCH ENDPOINTS
 
-  @app.route('/bookings/<int:booking_id>', methods=["PATCH"])
-  def edit_bookings(booking_id):
+  @app.route('/bookings/<string:booking_uuid>', methods=["PATCH"])
+  def edit_bookings(booking_uuid):
 
     data = request.get_json()
-    booking = Booking.query.filter_by(id = booking_id).one_or_none()
+    booking = Booking.query.filter_by(uuid = booking_uuid).one_or_none()
 
     if booking is None:
       return jsonify({})
@@ -159,8 +162,8 @@ def create_app(test_config=None):
       if "room_id" in data:
         booking.room_id = data.get("room_id")
 
-      if "guest_id" in data:
-        booking.guest_id = data.get("guest_id")
+      if "guest_uuid" in data:
+        booking.guest_uuid = data.get("guest_uuid")
 
       if "date_in" in data:
         booking.date_in = data.get("date_in")
@@ -181,11 +184,11 @@ def create_app(test_config=None):
 
       return jsonify(booking.long())
 
-  @app.route('/guests/<int:guest_id>', methods=["PATCH"])
-  def edit_guest(guest_id):
+  @app.route('/guests/<string:guest_uuid>', methods=["PATCH"])
+  def edit_guest(guest_uuid):
     
     data = request.get_json()
-    guest = Guest.query.filter_by(id = guest_id).one_or_none()
+    guest = Guest.query.filter_by(uuid = guest_uuid).one_or_none()
 
     if guest is None:
       return jsonify({})
@@ -207,27 +210,22 @@ def create_app(test_config=None):
     
 ##DELETE ENDPOINTS
 
-  @app.route('/bookings/<int:booking_id>', methods=["DELETE"])
-  def remove_booking(booking_id):
-    booking = Booking.query.filter_by(id = booking_id).one_or_none()
+  @app.route('/bookings/<string:booking_uuid>', methods=["DELETE"])
+  def remove_booking(booking_uuid):
+    booking = Booking.query.filter_by(uuid = booking_uuid).one_or_none()
     if booking is None:
       return jsonify({})
     Booking.delete(booking)
-    return jsonify({"booking_id": booking_id})
+    return jsonify({"booking_uuid": booking_uuid})
 
-  @app.route('/guests/<int:guest_id>', methods=["DELETE"])
-  def remove_guests(guest_id):
-    guest = Guest.query.filter_by(id = guest_id).one_or_none()
+  @app.route('/guests/<string:guest_uuid>', methods=["DELETE"])
+  def remove_guests(guest_uuid):
+    guest = Guest.query.filter_by(uuid = guest_uuid).one_or_none()
     if guest is None:
       return jsonify({})
     name = guest.name
     Guest.delete(guest)
     return jsonify({"removed":name})
-    
-
-    return jsonify({
-      "test":str(type(test))
-    })
 
   return app
 
