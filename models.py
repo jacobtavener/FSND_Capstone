@@ -8,7 +8,7 @@ import json
 from sqlalchemy.orm import relationship
 
 database_name = "hotel_bookings"
-database_path = "postgresql://{}:{}@{}/{}".format('postgres','hotel', 'localhost:5433', database_name)
+database_path = "postgresql://{}:{}@{}/{}".format('postgres', 'hotel', 'localhost:5433', database_name)
 
 db = SQLAlchemy()
 

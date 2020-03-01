@@ -1,10 +1,14 @@
 import os
+import uuid
+
 from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from models import *
+
 from dates import booked_dates
-import uuid
+from auth import requires_auth, AuthError
+
 
 def create_app(test_config=None):
   # create and configure the app
@@ -18,94 +22,117 @@ def create_app(test_config=None):
       response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS')
       return response
 
-##GET ENDPOINTS
+##GET REQUEST METHODS
 
   @app.route('/bookings')
-  def get_bookings():
-
-    bookings = Booking.query.all()
-    booking = {str(b.uuid):\
-                          {**b.booking(), **b.guest.booking(), **b.room.booking(), **b.room.roomtype.booking()}
-                          for b in bookings}
-
-    return jsonify(booking)
+  @requires_auth('get:bookings')
+  def get_bookings(payload):
+    try:
+      bookings = Booking.query.all()
+      booking = {str(b.uuid):\
+                            {**b.booking(), **b.guest.booking(), **b.room.booking(), **b.room.roomtype.booking()}
+                            for b in bookings}
+      return jsonify({
+        "success": True,
+        "bookings": booking
+      })
+    except Exception:
+      abort(500)
 
   @app.route('/roomtypes')
-  def get_room_types():
-
-    roomtypes = {"roomtype_id_"+str(r.id) : r.long()\
-                  for r in RoomType.query.all()}
-    
-    return jsonify(roomtypes)  
+  @requires_auth('get:roomtypes')
+  def get_room_types(payload):
+    try:
+      roomtypes = {"roomtype_id_"+str(r.id) : r.long()\
+                    for r in RoomType.query.all()}
+      
+      return jsonify({
+        "success": True,
+        "Room Types": roomtypes
+      })
+    except Exception:
+      abort(500)  
 
   @app.route('/guests')
-  def get_guests():
-
-    booked_guests = [str(b.guest_uuid) for b in Booking.query.all()]
-    guest_bookings = {id : {b.id : {**b.guest_view(), **b.room.booking()} for\
-                       b in Booking.query.filter_by(guest_uuid = id).all()} \
-                         for id in booked_guests}
-
-    guests = {str(g.uuid) : g.long() for g in Guest.query.all()}
-
-    for id in guests.keys():
-      if id in booked_guests:
-        guests[id]["zbookings"] = guest_bookings[id]
-      else:
-        guests[id]["zbookings"] = {}
-    return jsonify(guests)
+  @requires_auth('get:guests')
+  def get_guests(payload):
+    try:
+      booked_guests = [str(b.guest_uuid) for b in Booking.query.all()]
+      guest_bookings = {id : {b.id : {**b.guest_view(), **b.room.booking()} for\
+                        b in Booking.query.filter_by(guest_uuid = id).all()} \
+                          for id in booked_guests}
+      guests = {str(g.uuid) : g.long() for g in Guest.query.all()}
+      for id in guests.keys():
+        if id in booked_guests:
+          guests[id]["bookings"] = guest_bookings[id]
+        else:
+          guests[id]["bookings"] = {}
+      return jsonify({
+        "success": True,
+        "guests": guests
+      })
+    except Exception:
+      abort(500)
 
   @app.route('/guests/<string:guest_uuid>')
-  def get_guests_by_uuid(guest_uuid):
+  @requires_auth('get:guests_by_uuid')
+  def get_guests_by_uuid(payload, guest_uuid):
     guest = Guest.query.filter_by(uuid = guest_uuid).one_or_none()
     if guest is None:
-      return jsonify({
-        "error":"guest uuid not found"
-      })
-
-    else:
+      abort(422, 'guest uuid not found')
+    try:
       guest = guest.long()
       bookings = Booking.query.filter_by(guest_uuid= guest_uuid).all()
-      
       if len(bookings) == 0:
         guest['bookings'] = {}
       else:
         guest['bookings'] = {str(b.uuid) : {**b.guest_view(), **b.room.booking()} for b in bookings}
-      
-      return jsonify(guest)
+      return jsonify({
+        "success": True,
+        "guest": guest
+      })
+    except Exception:
+      abort(500)
 
   @app.route('/rooms')
-  def get_rooms():
-
-    rooms = {r.id : \
-              {**r.booking(), **r.roomtype.long_no_id(), "dates_booked" : booked_dates(r)} \
-              for r in Room.query.all()}
-    
-    return jsonify(rooms)
+  @requires_auth('get:rooms')
+  def get_rooms(payload):
+    try:
+      rooms = {r.id : \
+                {**r.booking(), **r.roomtype.long_no_id(), "dates_booked" : booked_dates(r)} \
+                for r in Room.query.all()}
+      
+      return jsonify({
+        "success": True,
+        "rooms": rooms
+      })
+    except Exception:
+      abort(500)
 
   @app.route('/rooms/<int:room_id>')
-  def get_room_by_id(room_id):
-    r = Room.query.filter_by(id = room_id).one_or_none()
-    if r is None:
-      return jsonify({})
-
-    else:
+  @requires_auth('get:room_by_id')
+  def get_room_by_id(payload, room_id):
+    try:
+      r = Room.query.filter_by(id = room_id).one_or_none()
       room = {**r.booking(), **r.roomtype.long_no_id(), "dates_booked" : booked_dates(r)}
+      return jsonify({
+        "success": True,
+        "room": room
+      })
+    except Exception:
+      abort(422, "room not found")
 
-      return jsonify(room)
-
-##POST ENDPOINTS
+##POST REQUEST METHODS
 
   @app.route('/bookings', methods=["POST"])
-  def create_booking():
+  @requires_auth('post:booking')
+  def create_booking(payload):
     
     data = request.get_json()
     if set(data.keys()) != set(Booking.params()):
-      return jsonify(
-        {}
-      )
+      abort(400, "input parameter missing")
 
-    else: 
+    try: 
       params ={
       'uuid' : uuid.uuid4(),
       'room_id' : data.get('room_id'),
@@ -122,113 +149,163 @@ def create_app(test_config=None):
 
       booking = new_booking.long()
 
-      return jsonify(booking)
-
+      return jsonify({
+        "success": True,
+        "booking": booking
+      }) 
+    except Exception:
+      abort(500)
+    
   @app.route('/guests', methods=["POST"])
-  def add_new_guest():
-
+  @requires_auth('post:guests')
+  def add_new_guest(payload):
     data = request.get_json()
-
     if set(data.keys()) != set(Guest.params()):
-      return jsonify({})
-
-    else:
+      abort(400, "input parameters missing")
+    try:
       params = {
-        "uuid" : uuid.uuid1(),
+        "uuid" : uuid.uuid4(),
         "name" : data.get('name'),
         "mobile" : data.get('mobile'),
         "email" : data.get('email')
       }
-
       new_guest = Guest(**params)
       Guest.insert(new_guest)
-
       guest = new_guest.long()
+      return jsonify({
+        "success": True,
+        "guest": guest
+      })
+    except Exception:
+      abort(500)
 
-      return jsonify(guest)
-
-##PATCH ENDPOINTS
+##PATCH REQUEST METHODS
 
   @app.route('/bookings/<string:booking_uuid>', methods=["PATCH"])
-  def edit_bookings(booking_uuid):
-
+  @requires_auth('patch:booking')
+  def edit_bookings(payload, booking_uuid):
     data = request.get_json()
     booking = Booking.query.filter_by(uuid = booking_uuid).one_or_none()
-
     if booking is None:
-      return jsonify({})
-
-    else:
+      abort(422, "booking not found")
+    try:
       if "room_id" in data:
         booking.room_id = data.get("room_id")
-
       if "guest_uuid" in data:
         booking.guest_uuid = data.get("guest_uuid")
-
       if "date_in" in data:
         booking.date_in = data.get("date_in")
-
       if "date_out" in data:
         booking.date_out = data.get("date_out")
-
       if "breakfast" in data: 
         booking.breakfast = data.get("breakfast")
-
       if "paid" in data:
         booking.paid = data.get("paid")
-
       if "reason_for_stay" in data:
         booking.reason_for_stay = data.get("reason_for_stay")
-
       Booking.update(booking)
+      return jsonify({
+        "success": True,
+        "booking": booking.long()
+      })
+    except Exception:
+      abort(500)
 
-      return jsonify(booking.long())
 
   @app.route('/guests/<string:guest_uuid>', methods=["PATCH"])
-  def edit_guest(guest_uuid):
-    
+  @requires_auth('patch:guest')
+  def edit_guest(payload, guest_uuid):
     data = request.get_json()
     guest = Guest.query.filter_by(uuid = guest_uuid).one_or_none()
-
     if guest is None:
-      return jsonify({})
-
-    else:
+      abort(422, "guest not found")
+    try:
       if "name" in data:
         guest.name = data.get("name")
-
       if "mobile" in data:
         guest.mobile = data.get("mobile")
-
       if "email" in data:
         guest.email = data.get("email")
-
-
       Guest.update(guest)
+      return jsonify({
+        "success": True,
+        "guest": guest.long()
+      })
+    except Exception:
+      abort(500)
 
-      return jsonify(guest.long())
-    
-##DELETE ENDPOINTS
+##DELETE REQUEST METHODS
 
   @app.route('/bookings/<string:booking_uuid>', methods=["DELETE"])
-  def remove_booking(booking_uuid):
+  @requires_auth('delete:booking')
+  def remove_booking(payload, booking_uuid):
     booking = Booking.query.filter_by(uuid = booking_uuid).one_or_none()
     if booking is None:
-      return jsonify({})
-    Booking.delete(booking)
-    return jsonify({"booking_uuid": booking_uuid})
+      abort(422, "booking not found")
+    try:
+      Booking.delete(booking)
+      return jsonify({
+        "success": True,
+        "booking_uuid": booking_uuid
+        })
+    except Exception:
+      abort(500)
 
   @app.route('/guests/<string:guest_uuid>', methods=["DELETE"])
-  def remove_guests(guest_uuid):
+  @requires_auth('delete:guest')
+  def remove_guests(payload, guest_uuid):
     guest = Guest.query.filter_by(uuid = guest_uuid).one_or_none()
     if guest is None:
-      return jsonify({})
-    name = guest.name
-    Guest.delete(guest)
-    return jsonify({"removed":name})
+      abort(422, "guest not found")
+    try:
+      name = guest.name
+      for booking in Booking.query.filter_by(guest_uuid = guest_uuid).all():
+        Booking.delete(booking)
+      Guest.delete(guest)
 
+      return jsonify({
+        "success": True,
+        "guest_uuid" : guest_uuid,
+        "removed": name
+        })
+    except Exception:
+      abort(500)
+
+#ERROR HANDLING
+
+  @app.errorhandler(422)
+  def unprocessable(error):
+      return jsonify({
+          "success": False,
+          "error": 422,
+          "message": error.description
+      }), 422
+
+
+  @app.errorhandler(400)
+  def bad_request(error):
+      return jsonify({
+          "success": False,
+          "error": 400,
+          "message": error.description
+      }), 400
+
+
+  @app.errorhandler(500)
+  def internal_server_error(error):
+      return jsonify({
+          "success": False,
+          "error": 500,
+          "message": error.description
+      }), 500
+
+  @app.errorhandler(AuthError)
+  def authentication_error(e):
+      return jsonify(e.error), e.status_code  
+    
   return app
 
+  
 APP = create_app()
 
 if __name__ == '__main__':

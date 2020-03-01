@@ -1,5 +1,1 @@
 Generic single-database configuration.
-
-#tear down 
-ps -fA | grep python
-kill *second number*
