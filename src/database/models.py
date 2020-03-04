@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-database_path = os.getenv("LOCAL_DOCKER_DB_PATH")
+database_path = os.environ['DATABASE_URL']
 
 db = SQLAlchemy()
 

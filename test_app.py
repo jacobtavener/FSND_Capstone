@@ -21,7 +21,7 @@ class HotelTestCase(unittest.TestCase):
         self.receptionist = os.getenv("RECEPTION")
         self.restaurant = os.getenv("RESTAURANT_MANAGER")
         self.expired_token = os.getenv("EXPIRED_TOKEN")
-        self.database_path = os.getenv("LOCAL_DOCKER_DB_PATH")
+        self.database_path = os.environ['DATABASE_URL']
         setup_db(self.app, self.database_path)
 
         self.new_booking = {
