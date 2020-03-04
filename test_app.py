@@ -6,7 +6,7 @@ import uuid
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from app import APP
-from src.database.models import setup_db, Room, Guest, RoomType, Booking
+from src.database.models import setup_db, Room, Guest, RoomType, Booking, db
 
 load_dotenv()
 
@@ -21,7 +21,7 @@ class HotelTestCase(unittest.TestCase):
         self.receptionist = os.getenv("RECEPTION")
         self.restaurant = os.getenv("RESTAURANT_MANAGER")
         self.expired_token = os.getenv("EXPIRED_TOKEN")
-        self.database_path = os.environ['DATABASE_URL']
+        self.database_path = os.getenv('DATABASE_URL')
         setup_db(self.app, self.database_path)
 
         self.new_booking = {
