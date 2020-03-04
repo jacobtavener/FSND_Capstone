@@ -7,9 +7,11 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import json
 from sqlalchemy.orm import relationship
+from dotenv import load_dotenv
 
-database_name = "hotel_bookings"
-database_path = "postgresql://{}:{}@{}/{}".format('postgres', 'hotel', 'localhost:5433', database_name)
+load_dotenv()
+
+database_path = os.getenv("LOCAL_DOCKER_DB_PATH")
 
 db = SQLAlchemy()
 

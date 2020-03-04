@@ -1,7 +1,8 @@
 # FSND Hotel Project 
-## capstone project for udacit full stack nanodegree program
+## capstone project for udacity full stack nanodegree program
 
-## Heroku Link  https://capstone-hotel-app.herokuapp.com/ 
+## Heroku Link  
+#### https://capstone-hotel-app.herokuapp.com/ 
 
 ## Motivation
 This api purpose is to be used internally within a small hotel.
@@ -22,6 +23,10 @@ Its use is aimed at:
 
 Follow instructions to install the latest version of python for your platform in the [python docs](https://docs.python.org/3/using/unix.html#getting-and-installing-the-latest-version-of-python)
 
+#### Virtual Enviornment
+
+We recommend working within a virtual environment whenever using Python for projects. This keeps your dependencies for each project separate and organaized. Instructions for setting up a virual enviornment for your platform can be found in the [python docs](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/)
+
 #### PIP Dependencies
 
 Once you have your virtual environment setup and running, install dependencies by naviging to the '/' directory and running:
@@ -40,29 +45,37 @@ This will install all of the required packages we selected within the `requireme
 
 - [Flask-CORS](https://flask-cors.readthedocs.io/en/latest/#) is the extension we'll use to handle cross origin requests from our frontend server.
 
-### Running the Server Locally
-
-To run the server with your own database connection, execute:
+### Running the Tests Locally
+1. Create a local database and populate with data. Execute:
 
 ```
-make custom_flask
+make local_database
 ```
 
-To run the server locally using the dockerised postgres sample database, execute:
+This will spin up a docker container with a postgres db, it will then get populated by the hotel_data.psql.
+Please provide the password 'hotel' upon request.
+
+2. Running the flask server with the local_database. Excute:
 
 ```
 make local_flask
 ```
 
-you will need to provide the password 'hotel' upon request.
+3. Running the tests. Execute:
 
 if you use this sample database, when you end the flask session, please ensure you then excute:
+
+```
+make tests
+```
+
+4. Tear down the local_database. Execute:
 
 ```
 make docker_down
 ```
 
-this stops the container from running.
+this stops the container from running and removes the previous migration folder.
 
 ### Running the tests locally
 The tests have be configured to run in conjunction with the data in the sample database provided.

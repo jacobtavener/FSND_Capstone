@@ -21,8 +21,7 @@ class HotelTestCase(unittest.TestCase):
         self.receptionist = os.getenv("RECEPTION")
         self.restaurant = os.getenv("RESTAURANT_MANAGER")
         self.expired_token = os.getenv("EXPIRED_TOKEN")
-        self.database_name = "hotel_bookings"
-        self.database_path = "postgresql://{}:{}@{}/{}".format('postgres','hotel', 'localhost:5433', self.database_name)
+        self.database_path = os.getenv("LOCAL_DOCKER_DB_PATH")
         setup_db(self.app, self.database_path)
 
         self.new_booking = {
@@ -211,10 +210,10 @@ class HotelTestCase(unittest.TestCase):
                                 })
         
         data = json.loads(res.data)
-
+        
         self.assertEqual(res.status_code, 401)
-        self.assertEqual(data['success'], False)
-        self.assertTrue(data['message'], "Token expired.")
+        self.assertTrue(data['code'], "token_expired")
+        self.assertTrue(data['description'], "Token expired.")
 
     def test_new_guest(self):
         res = self.client().post('/guests', json=self.new_guest, headers={
