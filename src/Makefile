@@ -1,7 +1,7 @@
 #!/bin/sh
 # wait-for-postgres.sh
 
-local_flask: up
+local_flask: docker_up
 	sleep 2
 	flask db upgrade
 	psql hotel_bookings <  hotel_data.psql -U postgres -h localhost -p 5433
@@ -11,10 +11,10 @@ local_psql:
 	psql postgresql://postgres:hotel@localhost:5433/hotel_bookings
 
 docker_up:
-	docker-compose up -d
+	docker-compose -f database/docker-compose.yml up -d
 
 docker_down:
-	docker-compose down
+	docker-compose -f database/docker-compose.yml down
 
 local_tests:
 	python3 unittests.py

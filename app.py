@@ -4,10 +4,10 @@ import uuid
 from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-from models import *
 
-from dates import booked_dates
-from auth import requires_auth, AuthError
+from src.database.models import Guest, Booking, Room, RoomType, booked_dates, setup_db
+
+from src.auth.auth import requires_auth, AuthError
 
 
 def create_app(test_config=None):

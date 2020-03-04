@@ -1,7 +1,7 @@
 # FSND Hotel Project 
 ## capstone project for udacit full stack nanodegree program
 
-## Heroku Link .... https://capstone-hotel-app.herokuapp.com/ | https://git.heroku.com/capstone-hotel-app.git
+## Heroku Link  https://capstone-hotel-app.herokuapp.com/ 
 
 ## Motivation
 This api purpose is to be used internally within a small hotel.
@@ -40,7 +40,7 @@ This will install all of the required packages we selected within the `requireme
 
 - [Flask-CORS](https://flask-cors.readthedocs.io/en/latest/#) is the extension we'll use to handle cross origin requests from our frontend server.
 
-### Running the Server
+### Running the Server Locally
 
 To run the server with your own database connection, execute:
 
@@ -48,10 +48,10 @@ To run the server with your own database connection, execute:
 make custom_flask
 ```
 
-To run the server using the dockerised postgres sample database, execute:
+To run the server locally using the dockerised postgres sample database, execute:
 
 ```
-make flask
+make local_flask
 ```
 
 you will need to provide the password 'hotel' upon request.
@@ -59,17 +59,17 @@ you will need to provide the password 'hotel' upon request.
 if you use this sample database, when you end the flask session, please ensure you then excute:
 
 ```
-make down
+make docker_down
 ```
 
 this stops the container from running.
 
-### Running the tests
+### Running the tests locally
 The tests have be configured to run in conjunction with the data in the sample database provided.
 In order to run the tests:
-1. ensure you have the server running in the ```make flask ``` set up
+1. ensure you have the server running in the ```make local_flask ``` set up
 2. In a seperate terminal, provided you are in the directory and have reactivated the env, the tests will run by executing 
-    ```make test```
+    ```make local_tests```
 
 ### Models
 ##### Guests

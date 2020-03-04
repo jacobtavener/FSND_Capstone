@@ -1,5 +1,5 @@
 import datetime
-from models import Booking
+from src.database.models import Booking
 
 def booked_dates(room):
     bookings = Booking.query.filter_by(room_id = room.id).all()
