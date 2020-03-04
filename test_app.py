@@ -10,6 +10,7 @@ from src.database.models import setup_db, Room, Guest, RoomType, Booking, db
 
 load_dotenv()
 
+
 class HotelTestCase(unittest.TestCase):
     """ This class represents the Hotel test case """
 
@@ -24,50 +25,47 @@ class HotelTestCase(unittest.TestCase):
         self.database_path = os.getenv('DATABASE_URL')
         setup_db(self.app, self.database_path)
 
-
         # add sample data to be used in the tests
         self.new_booking = {
-            'room_id' : 2,
-            'guest_uuid' : 'c5ef43fe-5567-11ea-84a8-acde48001122',
-            'date_in' : '2020-06-05',
-            'date_out' : '2020-06-08',
-            'breakfast' : True,
-            'paid' : False,
-            'reason_for_stay' : 'business'
-            } 
+            'room_id': 2,
+            'guest_uuid': 'c5ef43fe-5567-11ea-84a8-acde48001122',
+            'date_in': '2020-06-05',
+            'date_out': '2020-06-08',
+            'breakfast': True,
+            'paid': False,
+            'reason_for_stay': 'business'
+        }
         self.failed_new_booking = {
-            'guest_uuid' : 'c5ef43fe-5567-11ea-84a8-acde48001122',
-            'date_in' : '2020-06-05',
-            'date_out' : '2020-06-08',
-            'breakfast' : True,
-            'paid' : False,
-            'reason_for_stay' : 'business'
+            'guest_uuid': 'c5ef43fe-5567-11ea-84a8-acde48001122',
+            'date_in': '2020-06-05',
+            'date_out': '2020-06-08',
+            'breakfast': True,
+            'paid': False,
+            'reason_for_stay': 'business'
         }
         self.new_guest = {
-            "name" : 'Vito',
-            "mobile" : '08674782029',
-            "email" : 'email@email.com'
+            "name": 'Vito',
+            "mobile": '08674782029',
+            "email": 'email@email.com'
         }
         self.failed_new_guest = {
-            "mobile" : '08674782029',
-            "email" : 'email@email.com'  
+            "mobile": '08674782029',
+            "email": 'email@email.com'
         }
         self.edit_booking = {
-            'reason_for_stay' : 'pleasure'
+            'reason_for_stay': 'pleasure'
         }
         self.edit_guest = {
-            'name' : "Rosie"
+            'name': "Rosie"
         }
 
-         # binds the app to the current context
+        # binds the app to the current context
         with self.app.app_context():
             self.db = SQLAlchemy()
             self.db.init_app(self.app)
             # create all tables
             self.db.create_all()
 
-        
-    
     def tearDown(self):
         """Executed after reach test"""
         pass
@@ -78,9 +76,9 @@ class HotelTestCase(unittest.TestCase):
 
     def test_get_bookings(self):
         res = self.client().get('/bookings', headers={
-                                    "Authorization": "Bearer {}".format(
-                                        self.restaurant)
-                                })
+            "Authorization": "Bearer {}".format(
+                self.restaurant)
+        })
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -89,9 +87,9 @@ class HotelTestCase(unittest.TestCase):
 
     def test_get_roomtypes(self):
         res = self.client().get('/roomtypes', headers={
-                                    "Authorization": "Bearer {}".format(
-                                        self.hotel_manager)
-                                })
+            "Authorization": "Bearer {}".format(
+                self.hotel_manager)
+        })
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -100,9 +98,9 @@ class HotelTestCase(unittest.TestCase):
 
     def test_401_unauthorized_get_roomtypes(self):
         res = self.client().get('/roomtypes', headers={
-                                    "Authorization": "Bearer {}".format(
-                                        self.restaurant)
-                                })
+            "Authorization": "Bearer {}".format(
+                self.restaurant)
+        })
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 401)
@@ -111,9 +109,9 @@ class HotelTestCase(unittest.TestCase):
 
     def test_get_guests(self):
         res = self.client().get('/guests', headers={
-                                    "Authorization": "Bearer {}".format(
-                                        self.receptionist)
-                                })
+            "Authorization": "Bearer {}".format(
+                self.receptionist)
+        })
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -127,24 +125,22 @@ class HotelTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 401)
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], "no JWT provided")
-    
+
     def test_get_guests_by_uuid(self):
-        res = self.client().get('/guests/8ede78bc-5567-11ea-84a8-acde48001122',headers={
-                                    "Authorization": "Bearer {}".format(
-                                        self.receptionist)
-                                })
+        res = self.client().get(
+            '/guests/8ede78bc-5567-11ea-84a8-acde48001122',
+            headers={
+                "Authorization": "Bearer {}".format(
+                    self.receptionist)})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
         self.assertTrue(data['guest'])
 
-
     def test_422_guest_uuid_not_found(self):
-        res = self.client().get('/guests/1f3a0d7c-5969-11ea-bcd5-acde48001122',headers={
-                                    "Authorization": "Bearer {}".format(
-                                        self.hotel_manager)
-                                })
+        res = self.client().get('/guests/1f3a0d7c-5969-11ea-bcd5-acde48001122',
+                                headers={"Authorization": "Bearer {}".format(self.hotel_manager)})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 422)
@@ -153,9 +149,9 @@ class HotelTestCase(unittest.TestCase):
 
     def test_get_rooms(self):
         res = self.client().get('/rooms', headers={
-                                    "Authorization": "Bearer {}".format(
-                                        self.hotel_manager)
-                                })
+            "Authorization": "Bearer {}".format(
+                self.hotel_manager)
+        })
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -164,10 +160,10 @@ class HotelTestCase(unittest.TestCase):
 
     def test_get_rooms_by_id(self):
         res = self.client().get('/rooms/1', headers={
-                                    "Authorization": "Bearer {}".format(
-                                        self.hotel_manager)
-                                })
-        
+            "Authorization": "Bearer {}".format(
+                self.hotel_manager)
+        })
+
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -176,10 +172,10 @@ class HotelTestCase(unittest.TestCase):
 
     def test_422_room_not_exist(self):
         res = self.client().get('/rooms/1000', headers={
-                                    "Authorization": "Bearer {}".format(
-                                        self.hotel_manager)
-                                })
-        
+            "Authorization": "Bearer {}".format(
+                self.hotel_manager)
+        })
+
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 422)
@@ -192,10 +188,10 @@ class HotelTestCase(unittest.TestCase):
 
     def test_new_booking(self):
         res = self.client().post('/bookings', json=self.new_booking, headers={
-                                    "Authorization": "Bearer {}".format(
-                                        self.hotel_manager)
-                                })
-        
+            "Authorization": "Bearer {}".format(
+                self.hotel_manager)
+        })
+
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -203,11 +199,13 @@ class HotelTestCase(unittest.TestCase):
         self.assertTrue(data['booking'])
 
     def test_400_failed_new_booking(self):
-        res = self.client().post('/bookings', json=self.failed_new_booking, headers={
-                                    "Authorization": "Bearer {}".format(
-                                        self.hotel_manager)
-                                })
-        
+        res = self.client().post(
+            '/bookings',
+            json=self.failed_new_booking,
+            headers={
+                "Authorization": "Bearer {}".format(
+                    self.hotel_manager)})
+
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 400)
@@ -216,21 +214,21 @@ class HotelTestCase(unittest.TestCase):
 
     def test_401_expired_token(self):
         res = self.client().post('/bookings', json=self.new_booking, headers={
-                                    "Authorization": "Bearer {}".format(
-                                        self.expired_token)
-                                })
-        
+            "Authorization": "Bearer {}".format(
+                self.expired_token)
+        })
+
         data = json.loads(res.data)
-        
+
         self.assertEqual(res.status_code, 401)
         self.assertTrue(data['code'], "token_expired")
         self.assertTrue(data['description'], "Token expired.")
 
     def test_new_guest(self):
         res = self.client().post('/guests', json=self.new_guest, headers={
-                                    "Authorization": "Bearer {}".format(
-                                        self.receptionist)
-                                })
+            "Authorization": "Bearer {}".format(
+                self.receptionist)
+        })
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -238,11 +236,13 @@ class HotelTestCase(unittest.TestCase):
         self.assertTrue(data['guest'])
 
     def test_400_failed_new_guest(self):
-        res = self.client().post('/guests', json=self.failed_new_guest, headers={
-                                    "Authorization": "Bearer {}".format(
-                                        self.hotel_manager)
-                                })
-        
+        res = self.client().post(
+            '/guests',
+            json=self.failed_new_guest,
+            headers={
+                "Authorization": "Bearer {}".format(
+                    self.hotel_manager)})
+
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 400)
@@ -253,11 +253,13 @@ class HotelTestCase(unittest.TestCase):
     TESTING PATCH ENDPOINTS
     """
 
-    def test_edit_bookings(self): 
-        res = self.client().patch('/bookings/07edecf2-5567-11ea-84a8-acde48001122', json=self.edit_booking, headers={
-                                    "Authorization": "Bearer {}".format(
-                                        self.hotel_manager)
-                                })
+    def test_edit_bookings(self):
+        res = self.client().patch(
+            '/bookings/07edecf2-5567-11ea-84a8-acde48001122',
+            json=self.edit_booking,
+            headers={
+                "Authorization": "Bearer {}".format(
+                    self.hotel_manager)})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -266,38 +268,42 @@ class HotelTestCase(unittest.TestCase):
         self.assertTrue(data['booking'])
 
     def test_421_booking_uuid_not_found(self):
-        res = self.client().patch('/bookings/3fa63b8c-5567-11ea-84a8-acde48001122', json=self.edit_booking, headers={
-                                    "Authorization": "Bearer {}".format(
-                                        self.hotel_manager)
-                                })
+        res = self.client().patch(
+            '/bookings/3fa63b8c-5567-11ea-84a8-acde48001122',
+            json=self.edit_booking,
+            headers={
+                "Authorization": "Bearer {}".format(
+                    self.hotel_manager)})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 422)
         self.assertEqual(data['success'], False)
         self.assertTrue(data['message'], 'booking not found')
 
-
     def test_edit_guest(self):
-        res = self.client().patch('/guests/8f52bfc4-5567-11ea-84a8-acde48001122', json=self.edit_guest, headers={
-                                    "Authorization": "Bearer {}".format(
-                                        self.hotel_manager)
-                                })
+        res = self.client().patch(
+            '/guests/8f52bfc4-5567-11ea-84a8-acde48001122',
+            json=self.edit_guest,
+            headers={
+                "Authorization": "Bearer {}".format(
+                    self.hotel_manager)})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
         self.assertEqual(data['guest']['name'], 'Rosie')
-        self.assertTrue(data['guest']) 
+        self.assertTrue(data['guest'])
 
     """
     TESTING DELETE ENDPOINTS
     """
 
     def test_delete_booking(self):
-        res = self.client().delete('/bookings/2f3030a4-5567-11ea-84a8-acde48001122', headers={
-                                    "Authorization": "Bearer {}".format(
-                                        self.hotel_manager)
-                                })
+        res = self.client().delete(
+            '/bookings/2f3030a4-5567-11ea-84a8-acde48001122',
+            headers={
+                "Authorization": "Bearer {}".format(
+                    self.hotel_manager)})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -305,10 +311,11 @@ class HotelTestCase(unittest.TestCase):
         self.assertTrue(data['booking_uuid'])
 
     def test_422_delete_booking_invalid_uuid(self):
-        res = self.client().delete('/bookings/2f4030a4-5567-11ea-84a8-acde48001122', headers={
-                                    "Authorization": "Bearer {}".format(
-                                        self.hotel_manager)
-                                })
+        res = self.client().delete(
+            '/bookings/2f4030a4-5567-11ea-84a8-acde48001122',
+            headers={
+                "Authorization": "Bearer {}".format(
+                    self.hotel_manager)})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 422)
@@ -316,10 +323,11 @@ class HotelTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'booking not found')
 
     def test_401_delete_booking_unauthorized(self):
-        res = self.client().delete('/bookings/07edecf2-5567-11ea-84a8-acde48001122', headers={
-                                    "Authorization": "Bearer {}".format(
-                                        self.receptionist)
-                                })
+        res = self.client().delete(
+            '/bookings/07edecf2-5567-11ea-84a8-acde48001122',
+            headers={
+                "Authorization": "Bearer {}".format(
+                    self.receptionist)})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 401)
@@ -327,10 +335,11 @@ class HotelTestCase(unittest.TestCase):
         self.assertEqual(data['message'], "not permitted to use this feature")
 
     def test_delete_guest(self):
-        res = self.client().delete('/guests/91242f0e-5567-11ea-84a8-acde48001122', headers={
-                                    "Authorization": "Bearer {}".format(
-                                        self.hotel_manager)
-                                })
+        res = self.client().delete(
+            '/guests/91242f0e-5567-11ea-84a8-acde48001122',
+            headers={
+                "Authorization": "Bearer {}".format(
+                    self.hotel_manager)})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -338,10 +347,11 @@ class HotelTestCase(unittest.TestCase):
         self.assertTrue(data['removed'])
 
     def test_422_delete_guest_invalid_uuid(self):
-        res = self.client().delete('/guests/c6ef43fe-5567-11ea-84a8-acde48001122', headers={
-                                    "Authorization": "Bearer {}".format(
-                                        self.hotel_manager)
-                                })
+        res = self.client().delete(
+            '/guests/c6ef43fe-5567-11ea-84a8-acde48001122',
+            headers={
+                "Authorization": "Bearer {}".format(
+                    self.hotel_manager)})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 422)
@@ -349,18 +359,18 @@ class HotelTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'guest not found')
 
     def test_401_delete_guest_unauthorized(self):
-        res = self.client().delete('/guests/8ede78bc-5567-11ea-84a8-acde48001122', headers={
-                                    "Authorization": "Bearer {}".format(
-                                        self.restaurant)
-                                })
+        res = self.client().delete(
+            '/guests/8ede78bc-5567-11ea-84a8-acde48001122',
+            headers={
+                "Authorization": "Bearer {}".format(
+                    self.restaurant)})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 401)
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], "not permitted to use this feature")
-    
+
+
 # Make the tests conveniently executable
 if __name__ == "__main__":
     unittest.main()
-
-
