@@ -37,7 +37,7 @@ pip install -r requirements.txt
 
 This will install all of the required packages we selected within the `requirements.txt` file.
 
-##### Key Dependencies
+#### Key Dependencies
 
 - [Flask](http://flask.pocoo.org/) is a lightweight backend microservices framework. Flask is required to handle requests and responses.
 
@@ -45,44 +45,22 @@ This will install all of the required packages we selected within the `requireme
 
 - [Flask-CORS](https://flask-cors.readthedocs.io/en/latest/#) is the extension we'll use to handle cross origin requests from our frontend server.
 
-### Running the Tests Locally
-1. Create a local database and populate with data. Execute:
+#### Running the Server
+
+To run the server, execute:
 
 ```
-make local_database
+make flask
 ```
 
-This will spin up a docker container with a postgres db, it will then get populated by the hotel_data.psql.
-Please provide the password 'hotel' upon request.
-
-2. Running the flask server with the local_database. Excute:
-
-```
-make local_flask
-```
-
-3. Running the tests. Execute:
-
-if you use this sample database, when you end the flask session, please ensure you then excute:
-
+#### Running the tests 
+In order to run the tests, execute
+ 
 ```
 make tests
 ```
 
-4. Tear down the local_database. Execute:
-
-```
-make docker_down
-```
-
-this stops the container from running and removes the previous migration folder.
-
-### Running the tests locally
-The tests have be configured to run in conjunction with the data in the sample database provided.
-In order to run the tests:
-1. ensure you have the server running in the ```make local_flask ``` set up
-2. In a seperate terminal, provided you are in the directory and have reactivated the env, the tests will run by executing 
-    ```make local_tests```
+This will execute the test file and then re-add/delete the rows from the db which are affected by the tests.
 
 ### Models
 ##### Guests
@@ -148,14 +126,20 @@ All permissions a Receptionist has as well as:
 - DELETE:guest
 
 ### Environment Variables 
-In the ```.env``` file, there are 4 JWT tokens, 3 for the different users holding different roles & 1 expired token for testing purposes
+In the ```.env``` file, we have the following environment variables:
 
-- HOTEL_MANAGER
-- RECEPTION
-- RESTAURANT MANAGER
-- EXPIRED_TOKEN
+- HOTEL_MANAGER - a token for a user who has the role of Hotel Manager
+- RECEPTION - a token for a user who has the role of Receptionist
+- RESTAURANT MANAGER - a token for a user who has the role of Resturant Manager
+- EXPIRED_TOKEN - An expired token to test the error handlers
+- DATABASE_URL - the path to the Heroku database
+- LOCAL_DOCKER_DB_URL - the path to the docker postgres db (used in development)
+- AUTH0_DOMAIN - Domain name for Auth0
+- API_AUDIENCE - API Audience
 
 ### Endpoints 
+Please not that to access an of these endpoints, the user will have to include a valid bearer token.
+The tokens in the .env will provide access to certain endpoints depending on the permissions outlined above.
 
 ``` 
 GET '/bookings'

@@ -24,6 +24,8 @@ class HotelTestCase(unittest.TestCase):
         self.database_path = os.getenv('DATABASE_URL')
         setup_db(self.app, self.database_path)
 
+
+        # add sample data to be used in the tests
         self.new_booking = {
             'room_id' : 2,
             'guest_uuid' : 'c5ef43fe-5567-11ea-84a8-acde48001122',
@@ -56,6 +58,7 @@ class HotelTestCase(unittest.TestCase):
         self.edit_guest = {
             'name' : "Rosie"
         }
+
          # binds the app to the current context
         with self.app.app_context():
             self.db = SQLAlchemy()
@@ -68,6 +71,10 @@ class HotelTestCase(unittest.TestCase):
     def tearDown(self):
         """Executed after reach test"""
         pass
+
+    """
+    TESTING GET ENDPOINTS
+    """
 
     def test_get_bookings(self):
         res = self.client().get('/bookings', headers={
@@ -179,6 +186,10 @@ class HotelTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'room not found')
 
+    """
+    TESTING POST ENDPOINTS
+    """
+
     def test_new_booking(self):
         res = self.client().post('/bookings', json=self.new_booking, headers={
                                     "Authorization": "Bearer {}".format(
@@ -238,6 +249,10 @@ class HotelTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], "input parameters missing")
 
+    """
+    TESTING PATCH ENDPOINTS
+    """
+
     def test_edit_bookings(self): 
         res = self.client().patch('/bookings/07edecf2-5567-11ea-84a8-acde48001122', json=self.edit_booking, headers={
                                     "Authorization": "Bearer {}".format(
@@ -273,6 +288,10 @@ class HotelTestCase(unittest.TestCase):
         self.assertEqual(data['success'], True)
         self.assertEqual(data['guest']['name'], 'Rosie')
         self.assertTrue(data['guest']) 
+
+    """
+    TESTING DELETE ENDPOINTS
+    """
 
     def test_delete_booking(self):
         res = self.client().delete('/bookings/2f3030a4-5567-11ea-84a8-acde48001122', headers={

@@ -1,0 +1,14 @@
+INSERT INTO guests(uuid, name, mobile, email)
+VALUES 
+  ('91242f0e-5567-11ea-84a8-acde48001122' ,'herbie', '07583821', 'herbie@email.com');
+
+INSERT INTO bookings(uuid, room_id, guest_uuid, date_in, date_out, breakfast, paid, reason_for_stay)
+VALUES
+  ('2f3030a4-5567-11ea-84a8-acde48001122', 2, '90376688-5567-11ea-84a8-acde48001122', '2020-04-29', '2020-05-18', False, True, 'pleasure');
+
+DELETE FROM guests
+WHERE name='Vito' and mobile='08674782029' and email='email@email.com';
+
+DELETE FROM bookings
+WHERE room_id=2 and  guest_uuid = 'c5ef43fe-5567-11ea-84a8-acde48001122' and date_in = '2020-06-05' and date_out = '2020-06-08' and breakfast = True and paid = False and reason_for_stay = 'business';
+            
